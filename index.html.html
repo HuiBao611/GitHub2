@@ -2,95 +2,143 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Holland + MBTI Personality Test</title>
+  <title>Holland + MBTI Test</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      text-align: center;
-      padding-top: 50px;
-    }
-    h1 {
-      color: #333;
-      font-size: 36px;
-    }
-    .test-container {
+      font-family: Arial;
       max-width: 800px;
-      margin: 0 auto;
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin: 20px auto;
+      padding: 10px;
+      line-height: 1.6;
     }
-    .question {
-      margin: 20px 0;
-      font-size: 18px;
+    input[type="number"] {
+      width: 50px;
     }
-    .answers input {
-      margin-right: 10px;
+    textarea {
+      width: 100%;
+      height: 100px;
     }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    button:hover {
-      background-color: #45a049;
+    .section {
+      margin-top: 30px;
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>Holland + MBTI Personality Test</h1>
-  <div class="test-container">
-    <h2>Answer the following questions</h2>
 
-    <div class="question">
-      <p>1. I prefer working with my hands and physical materials.</p>
-      <div class="answers">
-        <input type="radio" name="q1" value="yes"> Yes
-        <input type="radio" name="q1" value="no"> No
-      </div>
-    </div>
+<h2>Holland + MBTI Personality & Career Test</h2>
+<p>为每道题选择你的认同程度（1 = 不认同，2 = 一般，3 = 非常认同），然后输入你的前两 MBTI 功能（如 Ni 和 Fe），点击“查看结果”。</p>
 
-    <div class="question">
-      <p>2. I enjoy interacting with people and solving their problems.</p>
-      <div class="answers">
-        <input type="radio" name="q2" value="yes"> Yes
-        <input type="radio" name="q2" value="no"> No
-      </div>
-    </div>
+<form id="testForm">
+  <div id="questions"></div>
 
-    <!-- Add more questions here -->
-
-    <button onclick="submitTest()">Submit Test</button>
-
-    <div id="result" style="display:none; margin-top: 30px;">
-      <h3>Your Personality Result:</h3>
-      <p id="personalityResult"></p>
-    </div>
+  <div class="section">
+    <label for="mbti1">你的第一功能（主导功能）:</label>
+    <input type="text" id="mbti1" required placeholder="如 Ni">
+    <br><br>
+    <label for="mbti2">你的第二功能（辅助功能）:</label>
+    <input type="text" id="mbti2" required placeholder="如 Fe">
   </div>
 
-  <script>
-    function submitTest() {
-      let result = "Your answers suggest you are best suited for careers in ";
-      let q1 = document.querySelector('input[name="q1"]:checked');
-      let q2 = document.querySelector('input[name="q2"]:checked');
-      
-      if (q1 && q1.value === "yes" && q2 && q2.value === "yes") {
-        result += "creative and social fields, such as design or counseling.";
-      } else {
-        result += "technical or analytical fields, such as engineering or research.";
-      }
+  <div class="section">
+    <button type="submit">查看结果</button>
+  </div>
+</form>
 
-      document.getElementById("personalityResult").innerText = result;
-      document.getElementById("result").style.display = "block";
-    }
-  </script>
+<div class="section" id="result"></div>
+
+<script>
+const questionsData = [
+  {type: 'Realistic', q: "I enjoy working with my hands or tools to solve concrete problems. 我喜欢用手或工具解决实际问题。"},
+  {type: 'Realistic', q: "I prefer physical or outdoor tasks over paperwork or office jobs. 我更喜欢在户外或动手的工作，而不是办公文书工作。"},
+  {type: 'Realistic', q: "I believe practical experience is more important than theories. 我相信经验胜于理论。"},
+  {type: 'Investigative', q: "I enjoy exploring the logic and cause behind problems. 我喜欢探索问题背后的逻辑和因果关系。"},
+  {type: 'Investigative', q: "I’m good at analyzing data and finding patterns. 我擅长分析数据、寻找规律。"},
+  {type: 'Investigative', q: "I feel curious about things I don’t yet understand. 我对未知事物充满好奇心。"},
+  {type: 'Artistic', q: "I like expressing myself creatively through writing, art, or ideas. 我喜欢以创意的方式表达自己。"},
+  {type: 'Artistic', q: "I prefer flexibility and exploration over structure and steps. 比起规范和步骤，我更倾向于自由探索与尝试。"},
+  {type: 'Artistic', q: "I solve problems in unconventional or original ways. 我善于用不寻常的方式解决问题。"},
+  {type: 'Social', q: "I enjoy helping others or listening to their ideas and feelings. 我喜欢帮助别人、倾听他们的想法或感受。"},
+  {type: 'Social', q: "I’m good at understanding what others need. 我擅长理解他人的需求。"},
+  {type: 'Social', q: "I find purpose in improving others’ lives. 我觉得有意义的工作是改善他人的生活。"},
+  {type: 'Enterprising', q: "I enjoy persuading and influencing others. 我喜欢说服他人，影响他们的想法或行为。"},
+  {type: 'Enterprising', q: "I can organize resources and make decisions in complex situations. 我能在复杂局面中做决策。"},
+  {type: 'Enterprising', q: "I want my work to create impact or change. 我希望我的工作能带来影响力或改变。"},
+  {type: 'Conventional', q: "I enjoy tasks with clear rules, steps, and structure. 我喜欢流程明确的任务。"},
+  {type: 'Conventional', q: "I prefer stable and predictable work environments. 我更喜欢稳定的工作环境。"},
+  {type: 'Conventional', q: "I’m good at organizing, classifying, and documenting information. 我善于整理信息、归档分类。"}
+];
+
+const mbtiFunctionMap = {
+  'Ni': "你倾向于从抽象模式中洞察未来，擅长战略思维与长期规划。适配人格类型：Investigative。推荐职业：科学家、数据分析师、医生、学者。",
+  'Ne': "你喜欢探索可能性，富有创意，善于跳跃式思考。适配人格类型：Artistic。推荐职业：设计师、作家、表演者、创意总监。",
+  'Si': "你重视经验和细节，擅长维持稳定与秩序。适配人格类型：Conventional。推荐职业：会计、行政、档案管理、流程顾问。",
+  'Se': "你关注现实和感官体验，擅长即时应对和实践。适配人格类型：Realistic。推荐职业：工程师、机械师、建筑工人、农业工作者。",
+  'Ti': "你注重内在逻辑和分析，追求精准与系统化。适配人格类型：Investigative。推荐职业：科学家、数据分析师、医生、学者。",
+  'Te': "你关注外部效率和成果，擅长组织和管理资源。适配人格类型：Enterprising。推荐职业：销售经理、企业家、市场推广、公关。",
+  'Fi': "你重视个人价值观，擅长做出真诚和道德的决定。适配人格类型：Artistic。推荐职业：设计师、作家、表演者、创意总监。",
+  'Fe': "你关注他人的情绪和关系，擅长营造和谐的氛围。适配人格类型：Social。推荐职业：教师、心理咨询师、社工、护士。"
+};
+
+const hollandCareers = {
+  'Realistic': "适合职业：工程师、机械师、建筑工人、农业工作者。",
+  'Investigative': "适合职业：科学家、研究员、数据分析师、医生、技术顾问。",
+  'Artistic': "适合职业：设计师、作家、插画师、表演者、导演。",
+  'Social': "适合职业：教师、心理咨询师、社工、护理人员。",
+  'Enterprising': "适合职业：销售、市场经理、企业家、项目负责人。",
+  'Conventional': "适合职业：会计、行政助理、档案管理员、流程顾问。"
+};
+
+const questionContainer = document.getElementById("questions");
+questionsData.forEach((q, i) => {
+  const html = `
+    <div>
+      <strong>Q${i + 1} (${q.type})</strong>: ${q.q}<br>
+      <label>选择 (1-3): </label>
+      <input type="number" name="q${i}" min="1" max="3" required><br><br>
+    </div>`;
+  questionContainer.innerHTML += html;
+});
+
+document.getElementById("testForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const scores = {};
+  let totalScore = 0;
+
+  questionsData.forEach((q, i) => {
+    const val = parseInt(form[`q${i}`].value);
+    if (!scores[q.type]) scores[q.type] = 0;
+    scores[q.type] += val;
+    totalScore += val;
+  });
+
+  const mbti1 = form.mbti1.value.trim();
+  const mbti2 = form.mbti2.value.trim();
+  const resultArea = document.getElementById("result");
+
+  const sortedTypes = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const top1 = sortedTypes[0];
+  const top2 = sortedTypes[1];
+
+  function getPercentage(score) {
+    return ((score / totalScore) * 100).toFixed(1) + "%";
+  }
+
+  let html = `<h3>你的结果：</h3>`;
+  html += `<p><strong>MBTI 主导功能（${mbti1}）说明：</strong> ${mbtiFunctionMap[mbti1] || '（未知功能）'}</p>`;
+  html += `<p><strong>MBTI 辅助功能（${mbti2}）说明：</strong> ${mbtiFunctionMap[mbti2] || '（未知功能）'}</p>`;
+  html += `<p><strong>Holland 人格类型 Top 1：</strong> ${top1[0]}（${getPercentage(top1[1])}）</p>`;
+  html += `<p>${hollandCareers[top1[0]]}</p>`;
+  html += `<p><strong>Holland 人格类型 Top 2：</strong> ${top2[0]}（${getPercentage(top2[1])}）</p>`;
+  html += `<p>${hollandCareers[top2[0]]}</p>`;
+
+  resultArea.innerHTML = html;
+});
+</script>
+
 </body>
 </html>
+
